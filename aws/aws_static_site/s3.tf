@@ -22,13 +22,18 @@ resource "aws_s3_bucket" "this" {
     index_document = "index.html"
     error_document = "error.html"
   }
+
+  logging {
+    target_bucket = "String<The name of the bucket that will receive the log objects>"
+    target_prefix = "String< To specify a key prefix for log objects>"
+  }
 }
 
 # Use a bucket policy (instead of the simpler acl = "public-read") so we don't need to always remember to upload objects with:
 # $ aws s3 cp --acl public-read ...
 # https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl
 resource "aws_s3_bucket_policy" "this" {
-  depends_on = ["aws_s3_bucket.this"]                      # because we refer to the bucket indirectly, we need to explicitly define the dependency
+  depends_on = ["aws_s3_bucket.this"] # because we refer to the bucket indirectly, we need to explicitly define the dependency
   count      = "${var.bucket_override_name == "" ? 1 : 0}"
   bucket     = "${local.bucket_name}"
 
